@@ -16,23 +16,25 @@ const Game = styled.div`
 const Centerline = styled.div`
   height: ${props => props.height - 10 + "px"};
   outline: black dashed 2px;
+  position: absolute;
+  left: 50%;
 `;
 
 const Paddle = styled.div.attrs(props => ({
   style: {
-    top: props.position + "px"
+    transform: `translate(0,${props.position}px`
   }
 }))`
   width: ${props => props.width + "px"};
   height: 75px;
   background-color: black;
   position: relative;
+  transition: transform 0.05s;
 `;
 
 const Ball = styled.div.attrs(props => ({
   style: {
-    top: props.position.y + "px",
-    left: props.position.x + "px"
+    transform: `translate(${props.position.x}px, ${props.position.y}px)`
   }
 }))`
   border-radius: 20px;
@@ -74,7 +76,6 @@ class App extends Component {
 
   handleKeypress = e => {
     let { key } = e;
-    console.log(key);
     switch (key) {
       case "w":
         this.moveUp("left");
@@ -96,22 +97,22 @@ class App extends Component {
   moveUp = paddle => {
     if (paddle === "left") {
       this.setState(prevState => ({
-        paddleLeft: prevState.paddleLeft - 10
+        paddleLeft: prevState.paddleLeft - 20
       }));
     } else {
       this.setState(prevState => ({
-        paddleRight: prevState.paddleRight - 10
+        paddleRight: prevState.paddleRight - 20
       }));
     }
   };
   moveDown = paddle => {
     if (paddle === "left") {
       this.setState(prevState => ({
-        paddleLeft: prevState.paddleLeft + 10
+        paddleLeft: prevState.paddleLeft + 20
       }));
     } else {
       this.setState(prevState => ({
-        paddleRight: prevState.paddleRight + 10
+        paddleRight: prevState.paddleRight + 20
       }));
     }
   };
@@ -138,16 +139,20 @@ class App extends Component {
       ballYDir *= -1;
     }
 
-    // paddles
+    // --paddles
+    // left
     if (
       newBallX < 0 + paddleWidth &&
-      (newBallY > paddleLeft + ballSize && newBallY < paddleLeft + paddleHeight)
+      (newBallY + ballSize / 2 > paddleLeft &&
+        newBallY - ballSize / 2 < paddleLeft + paddleHeight)
     ) {
       ballXDir *= -1;
     }
+    // right
     if (
       newBallX > width - paddleWidth - ballSize &&
-      (newBallY > paddleRight + ballSize && newBallY < paddleRight + paddleHeight )
+      (newBallY + ballSize / 2 > paddleRight &&
+        newBallY - ballSize / 2 < paddleRight + paddleHeight)
     ) {
       ballXDir *= -1;
     }
@@ -160,7 +165,7 @@ class App extends Component {
       newBallX = width / 2;
       newBallY = height / 2;
     }
-    if (newBallX > width) {
+    if (newBallX > width - ballSize) {
       ++score.left;
       newBallX = width / 2;
       newBallY = height / 2;
